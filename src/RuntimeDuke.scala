@@ -5,23 +5,14 @@ import scala.reflect.runtime.universe._
 import scala.tools.reflect.ToolBox
 
 object RuntimeDuke {
+  val toolbox = ru.runtimeMirror(getClass.getClassLoader).mkToolBox()
+  import toolbox._
 
   def astPlus( x:Int, y:Int ) = {
-    val tree = Apply(
-      Select(
-        Literal(Constant(x)),
-        newTermName("$plus")
-      ),
-      List(
-        Literal(Constant(y))
-      )
-    )
 
+    val tree = parse( s"($x + $y).toString")
+    eval(tree)
 
-    
-    val cm = ru.runtimeMirror(getClass.getClassLoader)
-
-    cm.mkToolBox().eval(tree)
   }
 
 }
