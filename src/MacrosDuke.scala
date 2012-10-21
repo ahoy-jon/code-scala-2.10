@@ -1,7 +1,7 @@
 
 import scala.reflect.macros.Context
 import language.experimental.macros
-
+import scala.language.implicitConversions
 
 object MacrosDuke {
 def desugar(a: Any): String = macro desugarImpl
