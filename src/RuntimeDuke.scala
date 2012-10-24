@@ -15,4 +15,20 @@ object RuntimeDuke {
 
   }
 
+  def matchList[T]( list:List[T] ) = list match {
+    case _: List[String] => "strings"
+    case _: List[Int] => "ints"
+    case _ => "unknown"
+  }
+
+  def matchListReflect[T]( list:List[T] )(implicit tt: TypeTag[T]) = tt.tpe match {
+    case t if t =:= typeOf[String] => "strings"
+    case t if t =:= typeOf[Int] => "ints"
+    case _ => "unknown"
+  }
+
+
+  def introspect[T]( implicit tt:TypeTag[T] ) = {
+    typeOf[T].declarations.filter(_.isMethod).map(_.name.toString)
+  }
 }

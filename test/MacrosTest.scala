@@ -6,6 +6,8 @@ class MacrosTest {
 
   @Test
   def desugarTest() {
+    println( desugar(1+"duke" ) )
+    println( desugar( "plouf".toUpperCase ) )
     println(desugar((1 to 10).map(_ + 1)))
 
     println(desugar((_:String) => {
@@ -16,15 +18,15 @@ class MacrosTest {
 
   @Test
   def logIsAllMyLife() {
-    val plouf =
+    log( 1 + 2, true )
 
-    log(log("plouf".toUpperCase).contains("P"))
+    log(log("plouf".toUpperCase, false).contains("P"), false )
   }
 
   @Test
   def binaryDude() {
 
-    println(b"010011")
+    println("010011 binary to decimal: " + b"010011")
   }
 
   }

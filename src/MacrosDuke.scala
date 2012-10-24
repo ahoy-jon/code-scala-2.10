@@ -1,33 +1,34 @@
-
 import scala.reflect.macros.Context
 import language.experimental.macros
-import scala.language.implicitConversions
+import language.implicitConversions
 
 object MacrosDuke {
-def desugar(a: Any): String = macro desugarImpl
+  def desugar(a: Any): String = macro desugarImpl
 
-def desugarImpl(c: Context)(a: c.Expr[Any]) = {
-  import c.universe._
-
-  val s = show(a.tree)
-  c.Expr(
-    Literal(Constant(s))
-  )
-}
-
-
-  def log[A](a: A): A = macro logImpl[A]
-
-  def logImpl[A: c.WeakTypeTag](c: Context)(a: c.Expr[A]): c.Expr[A] = {
+  def desugarImpl(c: Context)(a: c.Expr[Any]) = {
     import c.universe._
-    val aCode = c.Expr[String](Literal(Constant(show(a.tree))))
-    c.universe.reify {
-      val result = a.splice
-      println(aCode.splice + " = " + result)
-      result
-    }
+
+    c.Expr(Literal(Constant(show(a.tree))))
   }
 
+
+  def log[A](a: A, raw:Boolean): A = macro logImpl[A]
+
+  def logImpl[A: c.WeakTypeTag](c: Context)(a: c.Expr[A], raw:c.Expr[Boolean]): c.Expr[A] = {
+    import c.universe._
+    val aCode = c.Expr(Literal(Constant(show(a.tree))))
+    val aRaw = c.Expr(Literal(Constant(showRaw(a.tree))))
+    val Literal(Constant( isRaw:Boolean ) ) = raw.tree
+
+    if ( isRaw ) c.universe.reify {
+      println( aRaw.splice + " = " + a.splice )
+      a.splice
+    }
+    else c.universe.reify {
+      println( aCode.splice + " = " + a.splice )
+      a.splice
+    }
+  }
 
 
   implicit def enrichStringContext(sc: StringContext) = new RichStringContext(sc)
@@ -41,16 +42,17 @@ def desugarImpl(c: Context)(a: c.Expr[Any]) = {
 
     /** Binary literal integer
       *
-      *  {{{
+      * {{{
       *  scala> b"101010"
       *  res0: Int = 42
-      *  }}}
+      * }}}
       */
     def b(): Int = macro bImpl
   }
 
-  def b(): Int = macro bImpl
   def bImpl(c: Context)(): c.Expr[Int] = {
+    import c.universe._
+
     def parseBinary(s: String): Int = {
       var i = s.length - 1
       var sum = 0
@@ -68,7 +70,6 @@ def desugarImpl(c: Context)(a: c.Expr[Any]) = {
       sum
     }
 
-    import c.universe._
 
     val i = c.prefix.tree match {
       // e.g: `c.g.r.m.Macrocosm.enrichStringContext(scala.StringContext.apply("1111"))`
